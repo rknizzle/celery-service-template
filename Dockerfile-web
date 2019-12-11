@@ -1,0 +1,17 @@
+# Pull python base image
+FROM python:3.6-jessie
+
+RUN apt update
+
+# set work directory
+WORKDIR /app
+
+# install dependencies
+ADD requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
+
+# copy source files
+COPY . /app
+
+# run the web server
+CMD ["gunicorn", "main:app", "--config=config.py"]
