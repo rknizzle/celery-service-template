@@ -6,37 +6,29 @@ Flask web application
 # necessary imports
 #=============================================================================
 from flask import Flask
-from flask.ext.mail import Mail
 from celery import Celery
 
-from flascelery.helpers import random_string
 
 # ============================================================================
 # initialize flask app
 # ============================================================================
 app = Flask(__name__)
-app.secret_key = random_string()
 
 # ============================================================================
 # load application config
 # ============================================================================
-app.config.from_object('flascelery.settings')
-
-# ============================================================================
-# setup flask mail
-# ============================================================================
-mail = Mail(app)
+app.config.from_object('proj.settings')
 
 # ============================================================================
 # setup celery task queue
 # ============================================================================
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery = Celery(app.name, backend=app.config['CELERY_RESULT_BACKEND'], broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
 # ============================================================================
 # import application views
 # ============================================================================
-import flascelery.views
+import proj.views
 # ============================================================================
 # EOF
 # ============================================================================

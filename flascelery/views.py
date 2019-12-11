@@ -7,37 +7,15 @@ Flask views
 # ============================================================================
 from flask import session, request, render_template, flash, jsonify, url_for
 from flask import redirect
-from flask.ext.mail import Message
 
-from flascelery import app
-from flascelery.tasks import send_async_email, long_task
+from proj import app
+from proj.tasks import long_task
 
 
 # ============================================================================
 # views
 # ============================================================================
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    """Index view"""
-    if request.method == 'GET':
-        return render_template('index.html', email=session.get('email', ''))
-    email = request.form['email']
-    session['email'] = email
 
-    # send the mail
-    msg = Message('Hello from Flask', recipients=[request.form['email']])
-    msg.body = 'This is a test email sent from a background Celery task'
-
-    if request.form['submit'] == 'Send':
-        # send right away
-        send_async_email.delay(msg)
-        flash('Sending email to {}'.format(email))
-    else:
-        # send in one minute
-        send_async_email.apply_async(args=[msg], countdown=60)
-        flash('An email will be sent to {} in one minute'.format(email))
-
-    return redirect(url_for('index'))
 
 
 @app.route('/longtask', methods=['POST'])
